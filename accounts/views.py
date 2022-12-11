@@ -38,10 +38,10 @@ def register(request):
             })
             to_email = email
             send_email =EmailMessage(mail_subject, message, to=[to_email])
-            send_email.send()
+            send_email.send()#cooment this later
 
-            messages.success(request, 'Registration successful')
-            return redirect('register')
+            #messages.success(request, 'Thank you for registering with us, we have sent you a verification email to your email address. Please verify it.')
+            return redirect('/accounts/login/?command=verification&email='+email)
     else:
         form = RegistrationForm()
     context ={'form': form,}
@@ -69,3 +69,19 @@ def logout(request):
     auth.logout(request)
     messages.success(request, 'You are logged out')
     return redirect('login')
+
+def activate(request, uid65, token):
+    try:
+        uid =urlsafe_base64_decode(uidb64).decode()
+        user = Account._default_manager.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, Account.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active=True
+        user.save()
+        message.success(request, 'congratulations! Your account is activated')
+        return redirect('login')
+    else:
+        messages.error(request, 'invalid activation link')
+        return redirect('register')
