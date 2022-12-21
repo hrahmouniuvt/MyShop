@@ -21,17 +21,23 @@ def payments(request):
     order.is_ordered =True
     order.save()
 
-    cart_item = CartItem.objects.filter(user=request.user)
+    cart_items = CartItem.objects.filter(user=request.user)
 
     for item in cart_items:
         orderproduct = OrderProduct()
         orderproduct.order_id=order.id
         orderproduct.payment = payment
         orderproduct.user_id = request.user.id
-        orderproduct.product_id = request.product_id
+        orderproduct.product_id = item.product_id
         orderproduct.quantity = item.quantity
         orderproduct.product_price = item.product.price
         orderproduct.ordered = True
+        orderproduct.save()
+
+        cart_item = CartItem.objects.get(id=item.id)
+        product_variation = cart_item.variations.all()
+        orderproduct = OrderProduct.objects.get(id=orderproduct.id)
+        orderproduct.variations.set(product_variation)
         orderproduct.save()
 
 
