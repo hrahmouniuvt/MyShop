@@ -7,6 +7,7 @@ import json
 from store.models import Product
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
+from django.http import JsonResponse
 
 # Create your views here.
 def payments(request):
@@ -62,9 +63,14 @@ def payments(request):
     # send_email =EmailMessage(mail_subject, message, to=[to_email])
     # send_email.send()#cooment this later
 
+    date ={
+        'order_number': order.order_number,
+        'transID': payment.payment_id,
+
+    }
 
 
-    return render(request, 'orders/payments.html')
+    return JasonResponse(data)
 
 def place_order(request, total =0, quantity=0):
     current_user = request.user
@@ -72,7 +78,6 @@ def place_order(request, total =0, quantity=0):
     cart_count = cart_items.count()
     if cart_count <= 0:
         return redirect('store')
-
     grand_total = 0
     tax = 0
     for cart_item in cart_items:
@@ -80,14 +85,13 @@ def place_order(request, total =0, quantity=0):
         quantity += cart_item.quantity
     tax = (2 * total) / 100  # aplicar regra de imposto correta aki
     grand_total = total + tax
-
-
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
 
+            # armazena todos os dados da ordem de pagamento em Order
             data = Order()
-            data.user= current_user
+            data.user = current_user
             data.first_name = form.cleaned_data['first_name']
             data.last_name = form.cleaned_data['last_name']
             data.phone = form.cleaned_data['phone']
@@ -114,17 +118,18 @@ def place_order(request, total =0, quantity=0):
             data.save()
 
             order = Order.objects.get(user=current_user, is_ordered=False, order_number=order_number)
-            context ={
+            context = {
                 'order': order,
-                'cart_item': cart_item,
-                'total':total,
-                'tax':tax,
+                'cart_items': cart_items,
+                'total': total,
+                'tax': tax,
                 'grand_total': grand_total
             }
-            return render(request,'orders/payments.html',context)
-        else:
-            return redirect('store')
 
+            return render(request, 'orders/payments.html', context)
     else:
-
         return redirect('checkout')
+
+
+def order_complete(request):
+    return render(request, 'orders/order_complete.html')
