@@ -84,7 +84,7 @@
 		<h3>Customer Reviews </h3>
 
 	</header>
-	<form class="" action="" method="POST">
+	<form class="" action="{% url 'submit_review' single_product.id %}" method="POST">
 		{% csrf_token %}
 		<h5>Write Your Review</h5>
 		<div class="">
@@ -111,7 +111,7 @@
 			<br>
 			<input type="submit" name="" value="Submit Review" class="btn btn-primary">
 		</div>
-
+{% include 'includes/alerts.html' %}
 	</form>
 <br>
 	<article class="box mb-3">
