@@ -112,7 +112,7 @@ def place_order(request, total =0, quantity=0):
             dt = int(datetime.date.today().strftime('%d'))
             mt = int(datetime.date.today().strftime('%m'))
             d = datetime.date(yr, mt, dt)
-            current_date = d.strftime("%m/%d/%Y, %H:%M:%S")  # 20210615
+            current_date = d.strftime("%m%d%Y")  # 20210615
             order_number = current_date + str(data.id)  # 20210615+id
             data.order_number = order_number
             data.save()
